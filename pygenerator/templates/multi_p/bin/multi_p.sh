@@ -48,7 +48,11 @@ check_pid() {
   RETVAL=1
   if [ -f $PID_FILE ]; then
     PID=$(cat $PID_FILE)
-    ls /proc/$PID &>/dev/null
+    if [[ $(uname) == 'Darwin' ]]; then
+      vmmap $PID &>/dev/null
+    else
+      ls /proc/$PID &>/dev/null
+    fi
     if [ $? -eq 0 ]; then
       RETVAL=0
     fi

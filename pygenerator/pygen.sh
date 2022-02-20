@@ -41,14 +41,20 @@ function generate {
     CAPITAL_NAME=$CAPITAL_NAME$CAPITAL_PART
   done
 
-  git clone https://github.com/pemako/pygenerator.git tmp
-  # coding
-  # git clone https://git.coding.net/pemako/pygenerator.git tmp
+  #git init tmp && cd tmp
+  #git config core.sparsecheckout true
+  #echo 'pygenerator*' >> .git/info/sparse-checkout
+  #git remote add origin https://github.com/pemako/tools.git
+  #git pull origin master
+
+  #git clone https://github.com/pemako/pygenerator.git tmp
   USER_PROJ_DRI=$NAME
 
-  cp -r tmp/templates/$FULL/ $USER_PROJ_DRI
+  #cp -r tmp/templates/$FULL/ $USER_PROJ_DRI
+  cp -r templates/$FULL/ $USER_PROJ_DRI
 
   cd $USER_PROJ_DRI
+  mv $FULL $USER_PROJ_DRI
 
   if [ $SYSOS == "Darwin" ]; then
     echo 'starting....'
@@ -58,11 +64,12 @@ function generate {
   else
     find . -type f | xargs sed -i "s/$FULL/$NAME/g"
     find . -type f | xargs sed -i "s/$CAPITAL_FULL/$CAPITAL_NAME/g"
+    find . -type d | xargs sed -i "s/$CAPITAL_FULL/$CAPITAL_NAME/g"
     find . -name "$FULL*" -type f | xargs rename "$FULL" "$NAME"
   fi
 
   cd ..
-  rm -rf tmp
+  #rm -rf tmp
 }
 
 red 'Pemako Python Project Generator\n'

@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
 import signal
 import sys
@@ -11,8 +8,7 @@ class SimpleService(object):
     """Simple Service"""
 
     def __init__(self, cfg, execute_dir):
-
-        self.logger = logging.getLogger('simple')
+        self.logger = logging.getLogger("logger")
         self.cfg = cfg
         self.execute_dir = execute_dir
         self.running = False
@@ -31,20 +27,20 @@ class SimpleService(object):
             signal.signal(sig, self.handle_signal)
 
     def handle_signal(self, signal, frame):
-        self.logger.info('Handle signal %d, stop service', signal)
-        self.logger.info('Try to stop all workers.')
+        self.logger.info("Handle signal %d, stop service", signal)
+        self.logger.info("Try to stop all workers.")
         self.stop()
-        self.logger.info('Bye-bye.')
+        self.logger.info("Bye-bye.")
         sys.exit(0)
 
     def run(self):
-        self.logger.info('Simple service starts to run.')
+        self.logger.info("Simple service starts to run.")
         self.running = True
         while self.running:
-            self.logger.info('I\'m running')
+            self.logger.info("I'm running")
             # do something as your wish
             time.sleep(1)
 
     def stop(self):
-        self.logger.info('Simple service will stop.')
+        self.logger.info("Simple service will stop.")
         self.running = False
