@@ -17,7 +17,7 @@ logs:
       class: logging.handlers.RotatingFileHandler
       level: DEBUG
       formatter: base
-      filename: logs/simple.log
+      filename: logs/multi_t.log
       maxBytes: 10485760
       backupCount: 3
   loggers:
@@ -25,7 +25,7 @@ logs:
       level: INFO
       handlers: [logfile]
       propagate: yes
-    simple:
+    multi_t:
       level: INFO
       handlers: [logfile]
       propagate: yes

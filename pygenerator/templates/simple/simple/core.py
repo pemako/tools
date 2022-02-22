@@ -8,7 +8,7 @@ class SimpleService(object):
     """Simple Service"""
 
     def __init__(self, cfg, execute_dir):
-        self.logger = logging.getLogger("logger")
+        self.logger = logging.getLogger("simple")
         self.cfg = cfg
         self.execute_dir = execute_dir
         self.running = False
@@ -18,8 +18,8 @@ class SimpleService(object):
         """删除不需要处理的信号，以及增加需要处理的信号,并且设置不同的处理方法
         这里默认处理了SIGTERM和SIGINT，并且尝试停止service
         SIGINT = 2，可使用kill -2 pid 或 当CTRL+C终止程序时发出
-        SIGTERM = 15，可使用kill -15 pid发出
-        """
+        SIGTERM = 15，可使用kill -15 pid发出"""
+        
         signals = (signal.SIGTERM, signal.SIGINT)
         self.signal_handlers = {}
         for sig in signals:

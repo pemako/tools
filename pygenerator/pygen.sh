@@ -7,7 +7,7 @@ GREEN=$(
 )
 YELLOW=$(tput setaf 3)
 RED=$(tput setaf 1)
-SYSOS=$(uname -s)
+OS=$(uname -s)
 
 function red() {
   echo -e "$RED$*$NORMAL"
@@ -25,7 +25,7 @@ function generate {
   FULL=$1
   NAME=$2
   # info_server => InfoServer
-  if [ $SYSOS == "Darwin" ]; then
+  if [ $OS == "Darwin" ]; then
     CAPITAL_FULL=$(echo "$FULL" | gsed 's/\b[a-z]/\U&/g')
   else
     CAPITAL_FULL=$(echo "$FULL" | sed 's/\b[a-z]/\U&/g')
@@ -33,7 +33,7 @@ function generate {
 
   arr=(${NAME//_/ })
   for i in ${arr[@]}; do
-    if [ "$SYSOS" == "Darwin" ]; then
+    if [ "$OS" == "Darwin" ]; then
       CAPITAL_PART=$(echo "$i" | gsed 's/\b[a-z]/\U&/g')
     else
       CAPITAL_PART=$(echo "$i" | sed 's/\b[a-z]/\U&/g')
@@ -56,7 +56,7 @@ function generate {
   cd $USER_PROJ_DRI
   mv $FULL $USER_PROJ_DRI
 
-  if [ $SYSOS == "Darwin" ]; then
+  if [ $OS == "Darwin" ]; then
     echo 'starting....'
     find . -type f | xargs gsed -i "s/$FULL/$NAME/g"
     find . -type f | xargs gsed -i "s/$CAPITAL_FULL/$CAPITAL_NAME/g"
