@@ -9,7 +9,7 @@ class Multi_tService(object):
     """MultiT Service"""
 
     def __init__(self, cfg, execute_dir):
-        self.logger = logging.getLogger('multi_t')
+        self.logger = logging.getLogger("multi_t")
         self.cfg = cfg
         self.execute_dir = execute_dir
         self.running = False
@@ -27,32 +27,32 @@ class Multi_tService(object):
         for sig in signals:
             self.signal_handlers[sig] = signal.getsignal(sig)
             signal.signal(sig, self.handle_signal)
-        self.logger.info('Init signal handler')
+        self.logger.info("Init signal handler")
 
     def handle_signal(self, signal, frame):
-        self.logger.info('Handle signal %d, stop service', signal)
-        self.logger.info('Try to stop all workers.')
+        self.logger.info("Handle signal %d, stop service", signal)
+        self.logger.info("Try to stop all workers.")
         self.stop()
-        self.logger.info('Bye-bye.')
+        self.logger.info("Bye-bye.")
         sys.exit(0)
 
     def work_main(self):
         while self.running:
-            self.logger.info('I\'m running')
+            self.logger.info("I'm running")
             # do something as your wish
             time.sleep(1)
-        self.logger.info('Thread %d exits', threading.current_thread().ident)
+        self.logger.info("Thread %d exits", threading.current_thread().ident)
 
     def run(self):
         self.init_signal_handler()
-        self.logger.info('MultiT service starts to run.')
+        self.logger.info("MultiT service starts to run.")
         self.running = True
 
         for i in range(self.worker_mum):
             t = threading.Thread(target=self.work_main)
             t.start()
             self.worker_threads.append(t)
-            self.logger.info('Thread %d is created', t.ident)
+            self.logger.info("Thread %d is created", t.ident)
 
         while True:
             alive = False
@@ -62,5 +62,5 @@ class Multi_tService(object):
                 break
 
     def stop(self):
-        self.logger.info('MultiT service will stop.')
+        self.logger.info("MultiT service will stop.")
         self.running = False

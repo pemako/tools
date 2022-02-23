@@ -19,7 +19,7 @@ class SimpleService(object):
         这里默认处理了SIGTERM和SIGINT，并且尝试停止service
         SIGINT = 2，可使用kill -2 pid 或 当CTRL+C终止程序时发出
         SIGTERM = 15，可使用kill -15 pid发出"""
-        
+
         signals = (signal.SIGTERM, signal.SIGINT)
         self.signal_handlers = {}
         for sig in signals:

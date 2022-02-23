@@ -14,7 +14,7 @@ class Multi_t_qService(object):
     """MultiTQ Service"""
 
     def __init__(self, cfg, execute_dir):
-        self.logger = logging.getLogger('multi_t_q')
+        self.logger = logging.getLogger("multi_t_q")
         self.cfg = cfg
         self.execute_dir = execute_dir
 
@@ -31,7 +31,6 @@ class Multi_t_qService(object):
         self.failed_queue = queue.Queue()  # 失败的任务追加到这个中
         self.task_processor = TaskProcessor()
 
-
     def __init_signal_handler(self):
         """删除不需要处理的信号，以及增加需要处理的信号,并且设置不同的处理方法
         这里默认处理了SIGTERM和SIGINT，并且尝试停止service
@@ -43,13 +42,13 @@ class Multi_t_qService(object):
         for sig in signals:
             self.signal_handlers[sig] = signal.getsignal(sig)
             signal.signal(sig, self.handle_signal)
-        self.logger.info('Init signal handler')
+        self.logger.info("Init signal handler")
 
     def handle_signal(self, signal, frame):
-        self.logger.info('Handle signal %d, stop service', signal)
-        self.logger.info('Try to stop all workers.')
+        self.logger.info("Handle signal %d, stop service", signal)
+        self.logger.info("Try to stop all workers.")
         self.stop()
-        self.logger.info('Bye-bye.')
+        self.logger.info("Bye-bye.")
 
     def work_main(self):
         while self.running:
@@ -62,28 +61,30 @@ class Multi_t_qService(object):
                 retry_time = 0
                 while True:
                     if self.task_processor.process(task):
-                        self.logger.info('Done processing task: %s', task)
+                        self.logger.info("Done processing task: %s", task)
                         break
                     else:
                         if retry_time >= self.retry_num:
                             self.failed_queue.put(task)
-                            self.logger.error('Retry max time, save task into failed list')
+                            self.logger.error(
+                                "Retry max time, save task into failed list"
+                            )
                             break
                         retry_time += 1
                         time.sleep(self.retry_interval)
-                        self.logger.debug('Retry process task: %s', task)
-                self.logger.debug('Process cost: %f ms', (time.time() - s) * 1000)
+                        self.logger.debug("Retry process task: %s", task)
+                self.logger.debug("Process cost: %f ms", (time.time() - s) * 1000)
             except queue.Empty as empty:
                 # 队列是空的，说明任务不繁重，让CPU休息一会儿吧
                 # self.logger.debug('Task queue is empty')
                 time.sleep(1)
                 pass
             except Exception as e:
-                self.logger.error('Unknown error: %s', e)
-        self.logger.info('Thread %d exits', threading.current_thread().ident)
+                self.logger.error("Unknown error: %s", e)
+        self.logger.info("Thread %d exits", threading.current_thread().ident)
 
     def run(self):
-        self.logger.info('MultiTQ service starts to run.')
+        self.logger.info("MultiTQ service starts to run.")
         self.running = True
         self.__init_signal_handler()
         self.__create_workers()
@@ -98,12 +99,12 @@ class Multi_t_qService(object):
             t = threading.Thread(target=self.work_main)
             t.start()
             self.worker_threads.append(t)
-            self.logger.info('Thread %d is created', t.ident)
+            self.logger.info("Thread %d is created", t.ident)
 
     def __main_thread_prepare(self):
         # 将本地已有的todo file load进来处理
         todo_list = self.__load_from_todo_file()
-        self.logger.info('Load %d todo from file', len(todo_list))
+        self.logger.info("Load %d todo from file", len(todo_list))
         # 批量put到task queue，由于queue设置了上限，如果todo的比较多的话
         # 可能会阻塞在这里，直到todo都put完了，才能读标准输入处理新的
         for todo in todo_list:
@@ -112,7 +113,7 @@ class Multi_t_qService(object):
         try:
             os.remove(self.__get_todo_file_path())
         except Exception as e:
-            self.logger.debug('Remove todo file error: %s', e)
+            self.logger.debug("Remove todo file error: %s", e)
 
     def __main_thread_working(self):
         while self.running:
@@ -133,11 +134,11 @@ class Multi_t_qService(object):
             # 	self.running = False
             # 	break
             except Exception as e:
-                self.logger.error('Create task error: %s', e)
+                self.logger.error("Create task error: %s", e)
             else:
                 # 这里如果queue满了，会阻塞
                 self.task_queue.put(item=task, block=True)
-                self.logger.debug('Put new task into queue')
+                self.logger.debug("Put new task into queue")
 
     def __wait_for_workers(self):
         """该方法阻塞直到所有worker线程退出"""
@@ -159,31 +160,31 @@ class Multi_t_qService(object):
         failed_task_list = list(self.failed_queue.queue)
         todo_list.extend(remain_task_list)
         todo_list.extend(failed_task_list)
-        self.logger.debug('Final todo task list: %s', todo_list)
+        self.logger.debug("Final todo task list: %s", todo_list)
         # 将所有此次生命周期没有完成的任务dump到本地，下次启动或直接手动处理
         self.__dump_todo_file(todo_list)
 
     def __dump_todo_file(self, todo):
         try:
-            with open(self.__get_todo_file_path(), 'wb') as fd:
+            with open(self.__get_todo_file_path(), "wb") as fd:
                 pickle.dump(todo, fd)
         except Exception as e:
-            self.logger.debug('Dump todo file error: %s', e)
+            self.logger.debug("Dump todo file error: %s", e)
 
     def __load_from_todo_file(self):
         todo = []
         try:
-            with open(self.__get_todo_file_path(), 'rb') as fd:
+            with open(self.__get_todo_file_path(), "rb") as fd:
                 todo = pickle.load(fd)
         except Exception as e:
-            self.logger.debug('Load todo file error: %s', e)
+            self.logger.debug("Load todo file error: %s", e)
         return todo
 
     def __get_todo_file_path(self):
         todo_file = self.cfg.task.todo_file
-        path = os.path.join(self.execute_dir, 'data', todo_file)
+        path = os.path.join(self.execute_dir, "data", todo_file)
         return path
 
     def stop(self):
-        self.logger.info('MultiT service will stop.')
+        self.logger.info("MultiT service will stop.")
         self.running = False
