@@ -1,0 +1,41 @@
+---
+service:
+  workers: 2
+  task:
+    queue:
+      max: 100
+    retry:
+      num: 3
+      interval: 1
+    todo_file: todo.data
+
+logs:
+  version: 1
+  formatters:
+    base:
+      format: "%(asctime)s %(levelname)s %(name)s %(thread)d - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: WARNING
+      formatter: base
+      stream: ext://sys.stdout
+    logfile:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      formatter: base
+      filename: logs/multi_t_q.log
+      maxBytes: 10485760
+      backupCount: 3
+  loggers:
+    logger:
+      level: INFO
+      handlers: [logfile]
+      propagate: yes
+    multi_t_q:
+      level: INFO
+      handlers: [logfile]
+      propagate: yes
+  root:
+    level: DEBUG
+    handlers: [console]

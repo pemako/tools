@@ -9,10 +9,8 @@ BASEDIR=$(
   cd ..
   pwd
 )
-
 NAME="multi_t_q"
-
-CMD="multi_t_q.py"
+CMD="main.py"
 
 if [ "$1" = "-d" ]; then
   shift
@@ -27,22 +25,13 @@ if [ ! -d "$EXECUTEDIR" ]; then
   exit
 fi
 
-if [ ! -d "$EXECUTEDIR"/conf ]; then
-  echo "ERROR: could not find $EXECUTEDIR/conf/"
-  exit
-fi
-
-if [ ! -d "$EXECUTEDIR"/log ]; then
-  mkdir "$EXECUTEDIR"/log
-  mkdir "$EXECUTEDIR"/log/hourly
-fi
-if [ ! -d "$EXECUTEDIR"/log/hourly ]; then
-  mkdir "$EXECUTEDIR"/log/hourly
+if [ ! -d "$EXECUTEDIR"/logs ]; then
+  mkdir "$EXECUTEDIR"/logs
 fi
 
 cd "$EXECUTEDIR"
 
-PID_FILE="$EXECUTEDIR"/log/"$NAME".pid
+PID_FILE="$EXECUTEDIR"/logs/"$NAME".pid
 
 check_pid() {
   RETVAL=1
@@ -64,38 +53,38 @@ check_running() {
   RETVAL=0
   check_pid
   if [ $RETVAL -eq 0 ]; then
-    echo "$CMD is running as $PID, we'll do nothing"
+    echo "$NAME is running as $PID, we'll do nothing"
     exit
   fi
 }
 
 start() {
   check_running
-  echo "starting $CMD ..."
-  nohup "$BASEDIR"/lib/"$CMD" -d "$EXECUTEDIR" 2>"$EXECUTEDIR"/log/"$NAME".err >"$EXECUTEDIR"/log/"$NAME".out &
+  echo "starting $NAME ..."
+  nohup "$BASEDIR"/"$NAME"/"$CMD" -d "$EXECUTEDIR" 2>"$EXECUTEDIR"/logs/"$NAME".err >"$EXECUTEDIR"/logs/"$NAME".out &
   PID=$!
-  echo $PID >"$EXECUTEDIR"/log/"$NAME".pid
+  echo $PID >"$EXECUTEDIR"/logs/"$NAME".pid
   sleep 1
 }
 
 stop() {
   check_pid
   if [ $RETVAL -eq 0 ]; then
-    echo "$CMD is running as $PID, stopping it..."
+    echo "$NAME is running as $PID, stopping it..."
     kill -15 $PID
     sleep 1
     echo "done"
   else
-    echo "$CMD is not running, do nothing"
+    echo "$NAME is not running, do nothing"
   fi
 
   while true; do
     check_pid
     if [ $RETVAL -eq 0 ]; then
-      echo "$CMD is running, waiting it's exit..."
+      echo "$NAME is running, waiting it's exit..."
       sleep 1
     else
-      echo "$CMD is stopped safely, you can restart it now"
+      echo "$NAME is stopped safely, you can restart it now"
       break
     fi
   done
@@ -108,32 +97,33 @@ stop() {
 status() {
   check_pid
   if [ $RETVAL -eq 0 ]; then
-    echo "$CMD is running as $PID ..."
+    echo "$NAME is running as $PID ..."
   else
-    echo "$CMD is not running"
+    echo "$NAME is not running"
   fi
 }
 
 RETVAL=0
 case "$1" in
-  start)
-    start $@
-    status
-    ;;
-  stop)
-    stop
-    ;;
-  restart)
-    stop
-    start $@
-    ;;
-  status)
-    status
-    ;;
-  *)
-    echo "Version: $VERSION"
-    echo "Usage: $0 [-d EXECUTION_PATH] {start|stop|restart|status}"
-    RETVAL=1
-    ;;
+start)
+  start $@
+  status
+  ;;
+stop)
+  stop
+  ;;
+restart)
+  stop
+  start $@
+  ;;
+status)
+  status
+  ;;
+*)
+  echo "Version: $VERSION"
+  echo "Usage: $0 [-d EXECUTION_PATH] {start|stop|restart|status}"
+  RETVAL=1
+  ;;
 esac
+
 exit $RETVAL

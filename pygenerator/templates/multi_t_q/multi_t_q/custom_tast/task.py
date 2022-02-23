@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-
 class Task(object):
     def __init__(self):
         """Custom task class to store the object to be processed"""

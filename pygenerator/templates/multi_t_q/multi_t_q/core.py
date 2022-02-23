@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import logging
+import queue
+import signal
 import os
 import pickle
-import Queue
-import signal
 import threading
 import time
 
@@ -20,24 +17,27 @@ class Multi_t_qService(object):
         self.logger = logging.getLogger('multi_t_q')
         self.cfg = cfg
         self.execute_dir = execute_dir
+
         # worker
         self.running = False
-        self.worker_mum = self.cfg.getint('default', 'service.workers')
+        self.worker_mum = self.cfg.workers
         self.worker_threads = []
+
         # task conf
-        task_queue_max = self.cfg.getint('task', 'task.queue.max')
-        self.retry_num = self.cfg.getint('task', 'task.retry.num')
-        self.retry_interval = self.cfg.getint('task', 'task.retry.interval')
-        self.task_queue = Queue.Queue(maxsize=task_queue_max)
-        self.failed_queue = Queue.Queue()  # 失败任务追加到这个中
+        task_queue_max = self.cfg.task.queue.max
+        self.retry_num = self.cfg.task.retry.num
+        self.retry_interval = self.cfg.task.retry.interval
+        self.task_queue = queue.Queue(maxsize=task_queue_max)
+        self.failed_queue = queue.Queue()  # 失败的任务追加到这个中
         self.task_processor = TaskProcessor()
+
 
     def __init_signal_handler(self):
         """删除不需要处理的信号，以及增加需要处理的信号,并且设置不同的处理方法
         这里默认处理了SIGTERM和SIGINT，并且尝试停止service
         SIGINT = 2，可使用kill -2 pid 或 当CTRL+C终止程序时发出
-        SIGTERM = 15，可使用kill -15 pid发出
-        """
+        SIGTERM = 15，可使用kill -15 pid发出"""
+
         signals = (signal.SIGTERM, signal.SIGINT)
         self.signal_handlers = {}
         for sig in signals:
@@ -73,12 +73,12 @@ class Multi_t_qService(object):
                         time.sleep(self.retry_interval)
                         self.logger.debug('Retry process task: %s', task)
                 self.logger.debug('Process cost: %f ms', (time.time() - s) * 1000)
-            except Queue.Empty, empty:
+            except queue.Empty as empty:
                 # 队列是空的，说明任务不繁重，让CPU休息一会儿吧
                 # self.logger.debug('Task queue is empty')
                 time.sleep(1)
                 pass
-            except Exception, e:
+            except Exception as e:
                 self.logger.error('Unknown error: %s', e)
         self.logger.info('Thread %d exits', threading.current_thread().ident)
 
@@ -111,7 +111,7 @@ class Multi_t_qService(object):
         # 确保都put进去了之后，删掉dump的file
         try:
             os.remove(self.__get_todo_file_path())
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Remove todo file error: %s', e)
 
     def __main_thread_working(self):
@@ -132,7 +132,7 @@ class Multi_t_qService(object):
             # 	self.logger.info('Read EOF, stop reading and exiting')
             # 	self.running = False
             # 	break
-            except Exception, e:
+            except Exception as e:
                 self.logger.error('Create task error: %s', e)
             else:
                 # 这里如果queue满了，会阻塞
@@ -167,7 +167,7 @@ class Multi_t_qService(object):
         try:
             with open(self.__get_todo_file_path(), 'wb') as fd:
                 pickle.dump(todo, fd)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Dump todo file error: %s', e)
 
     def __load_from_todo_file(self):
@@ -175,12 +175,12 @@ class Multi_t_qService(object):
         try:
             with open(self.__get_todo_file_path(), 'rb') as fd:
                 todo = pickle.load(fd)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Load todo file error: %s', e)
         return todo
 
     def __get_todo_file_path(self):
-        todo_file = self.cfg.get('task', 'task.todo_file')
+        todo_file = self.cfg.task.todo_file
         path = os.path.join(self.execute_dir, 'data', todo_file)
         return path
 
