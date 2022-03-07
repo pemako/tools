@@ -6,7 +6,7 @@ import logging.config
 import os
 import sys
 
-import ConfigParser
+import configparser
 
 from simple_service import SimpleService
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
                     help='simple service execute directory',
                     default=basepath)
     args = ap.parse_args()
-    print 'Run simple service at %s' % args.execute_dir
+    print('Run simple service at %s' % args.execute_dir)
     os.chdir(args.execute_dir)
 
     # 如果需要用到Django，取消以下注释，并在conf目录中增加Django相关的配置setting.py
@@ -31,14 +31,14 @@ if __name__ == '__main__':
 
     # 读取项目的配置，包括模块自身的基本配置，日志模块配置等
     # logging config
-    print 'Load logging config...'
+    print('Load logging config...')
     logging.config.fileConfig(
         os.path.join(
             args.execute_dir,
             'conf/simple_logging.cfg'))
     # simple service config
-    print 'Load simple service config...'
-    cfg = ConfigParser.RawConfigParser()
+    print('Load simple service config...')
+    cfg = configparser.RawConfigParser()
     cfg.read(os.path.join(args.execute_dir, 'conf/simple_service.cfg'))
 
     # Let's rock 'n roll!

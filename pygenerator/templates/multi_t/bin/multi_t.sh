@@ -41,14 +41,18 @@ cd "$EXECUTEDIR"
 PID_FILE="$EXECUTEDIR"/log/"$NAME".pid
 
 check_pid() {
-    RETVAL=1
-    if [ -f $PID_FILE ]; then
-        PID=`cat $PID_FILE`
-        ls /proc/$PID &> /dev/null
-        if [ $? -eq 0 ]; then
-            RETVAL=0
-        fi
+  RETVAL=1
+  if [ -f $PID_FILE ]; then
+    PID=$(cat $PID_FILE)
+    if [[ $(uname) == 'Darwin' ]]; then
+      vmmap $PID &>/dev/null
+    else
+      ls /proc/$PID &>/dev/null
     fi
+    if [ $? -eq 0 ]; then
+      RETVAL=0
+    fi
+  fi
 }
 
 check_running() {
@@ -112,21 +116,20 @@ case "$1" in
     start)
         start $@
         status
-        ;;  
+        ;;
     stop)
         stop
-        ;;  
+        ;;
     restart)
         stop
         start $@
-        ;;  
+        ;;
     status)
         status
-        ;;  
-    *)  
+        ;;
+    *)
         echo "Version: $VERSION"
         echo "Usage: $0 [-d EXECUTION_PATH] {start|stop|restart|status}"
         RETVAL=1
 esac
 exit $RETVAL
-

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import logging
 import os
@@ -21,7 +20,6 @@ class Multi_pService(object):
         self.execute_dir = execute_dir
         # worker
         self.worker_mum = self.cfg.getint('default', 'service.workers')
-        self.workers = []
         self.is_running = Value('b', False)
         self.stop_condition = Condition()
         self.post_fork_callback = None
@@ -31,6 +29,11 @@ class Multi_pService(object):
         # 例如媒体信息：'media_12306'，offer信息：'creative_10086'
         # 对这个dict的读写是进程安全的
         self.cache_dict = manager.dict()
+
+    @property
+    def workers(self):
+        workers = []
+        return workers
 
     def init_signal_handler(self):
         """删除不需要处理的信号，以及增加需要处理的信号,并且设置不同的处理方法
@@ -99,7 +102,7 @@ class Multi_pService(object):
                 w.daemon = True
                 w.start()
                 self.workers.append(w)
-            except Exception, x:
+            except Exception as x:
                 logging.exception(x)
 
         for w in self.workers:
@@ -113,7 +116,7 @@ class Multi_pService(object):
                 break
             except (SystemExit, KeyboardInterrupt):
                 break
-            except Exception, x:
+            except Exception as x:
                 logging.exception(x)
 
         self.is_running.value = False

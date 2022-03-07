@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import logging
 import os
 import pickle
-import Queue
+import queue
 import signal
 import threading
 import time
@@ -28,8 +27,8 @@ class Multi_t_qService(object):
         task_queue_max = self.cfg.getint('task', 'task.queue.max')
         self.retry_num = self.cfg.getint('task', 'task.retry.num')
         self.retry_interval = self.cfg.getint('task', 'task.retry.interval')
-        self.task_queue = Queue.Queue(maxsize=task_queue_max)
-        self.failed_queue = Queue.Queue()  # 失败任务追加到这个中
+        self.task_queue = queue.Queue(maxsize=task_queue_max)
+        self.failed_queue = queue.Queue()  # 失败任务追加到这个中
         self.task_processor = TaskProcessor()
 
     def __init_signal_handler(self):
@@ -73,12 +72,12 @@ class Multi_t_qService(object):
                         time.sleep(self.retry_interval)
                         self.logger.debug('Retry process task: %s', task)
                 self.logger.debug('Process cost: %f ms', (time.time() - s) * 1000)
-            except Queue.Empty, empty:
+            except queue.Empty as empty:
                 # 队列是空的，说明任务不繁重，让CPU休息一会儿吧
                 # self.logger.debug('Task queue is empty')
                 time.sleep(1)
                 pass
-            except Exception, e:
+            except Exception as e:
                 self.logger.error('Unknown error: %s', e)
         self.logger.info('Thread %d exits', threading.current_thread().ident)
 
@@ -111,7 +110,7 @@ class Multi_t_qService(object):
         # 确保都put进去了之后，删掉dump的file
         try:
             os.remove(self.__get_todo_file_path())
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Remove todo file error: %s', e)
 
     def __main_thread_working(self):
@@ -132,7 +131,7 @@ class Multi_t_qService(object):
             # 	self.logger.info('Read EOF, stop reading and exiting')
             # 	self.running = False
             # 	break
-            except Exception, e:
+            except Exception as e:
                 self.logger.error('Create task error: %s', e)
             else:
                 # 这里如果queue满了，会阻塞
@@ -144,7 +143,7 @@ class Multi_t_qService(object):
         while True:
             alive = False
             for t in self.worker_threads:
-                alive = alive or t.isAlive()
+                alive = alive or t.is_alive()
             if not alive:
                 break
 
@@ -167,7 +166,7 @@ class Multi_t_qService(object):
         try:
             with open(self.__get_todo_file_path(), 'wb') as fd:
                 pickle.dump(todo, fd)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Dump todo file error: %s', e)
 
     def __load_from_todo_file(self):
@@ -175,7 +174,7 @@ class Multi_t_qService(object):
         try:
             with open(self.__get_todo_file_path(), 'rb') as fd:
                 todo = pickle.load(fd)
-        except Exception, e:
+        except Exception as e:
             self.logger.debug('Load todo file error: %s', e)
         return todo
 
