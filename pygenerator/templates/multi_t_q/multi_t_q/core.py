@@ -1,8 +1,18 @@
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
+=======
+#!/usr/bin/env python
+
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
 import logging
 import queue
 import signal
 import os
 import pickle
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
+=======
+import queue
+import signal
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
 import threading
 import time
 
@@ -24,11 +34,19 @@ class Multi_t_qService(object):
         self.worker_threads = []
 
         # task conf
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
         task_queue_max = self.cfg.task.queue.max
         self.retry_num = self.cfg.task.retry.num
         self.retry_interval = self.cfg.task.retry.interval
         self.task_queue = queue.Queue(maxsize=task_queue_max)
         self.failed_queue = queue.Queue()  # 失败的任务追加到这个中
+=======
+        task_queue_max = self.cfg.getint('task', 'task.queue.max')
+        self.retry_num = self.cfg.getint('task', 'task.retry.num')
+        self.retry_interval = self.cfg.getint('task', 'task.retry.interval')
+        self.task_queue = queue.Queue(maxsize=task_queue_max)
+        self.failed_queue = queue.Queue()  # 失败任务追加到这个中
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
         self.task_processor = TaskProcessor()
 
     def __init_signal_handler(self):
@@ -72,16 +90,26 @@ class Multi_t_qService(object):
                             break
                         retry_time += 1
                         time.sleep(self.retry_interval)
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
                         self.logger.debug("Retry process task: %s", task)
                 self.logger.debug("Process cost: %f ms", (time.time() - s) * 1000)
+=======
+                        self.logger.debug('Retry process task: %s', task)
+                self.logger.debug('Process cost: %f ms', (time.time() - s) * 1000)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
             except queue.Empty as empty:
                 # 队列是空的，说明任务不繁重，让CPU休息一会儿吧
                 # self.logger.debug('Task queue is empty')
                 time.sleep(1)
                 pass
             except Exception as e:
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
                 self.logger.error("Unknown error: %s", e)
         self.logger.info("Thread %d exits", threading.current_thread().ident)
+=======
+                self.logger.error('Unknown error: %s', e)
+        self.logger.info('Thread %d exits', threading.current_thread().ident)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
 
     def run(self):
         self.logger.info("MultiTQ service starts to run.")
@@ -113,7 +141,11 @@ class Multi_t_qService(object):
         try:
             os.remove(self.__get_todo_file_path())
         except Exception as e:
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
             self.logger.debug("Remove todo file error: %s", e)
+=======
+            self.logger.debug('Remove todo file error: %s', e)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
 
     def __main_thread_working(self):
         while self.running:
@@ -134,7 +166,11 @@ class Multi_t_qService(object):
             # 	self.running = False
             # 	break
             except Exception as e:
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
                 self.logger.error("Create task error: %s", e)
+=======
+                self.logger.error('Create task error: %s', e)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
             else:
                 # 这里如果queue满了，会阻塞
                 self.task_queue.put(item=task, block=True)
@@ -145,7 +181,7 @@ class Multi_t_qService(object):
         while True:
             alive = False
             for t in self.worker_threads:
-                alive = alive or t.isAlive()
+                alive = alive or t.is_alive()
             if not alive:
                 break
 
@@ -169,7 +205,11 @@ class Multi_t_qService(object):
             with open(self.__get_todo_file_path(), "wb") as fd:
                 pickle.dump(todo, fd)
         except Exception as e:
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
             self.logger.debug("Dump todo file error: %s", e)
+=======
+            self.logger.debug('Dump todo file error: %s', e)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
 
     def __load_from_todo_file(self):
         todo = []
@@ -177,7 +217,11 @@ class Multi_t_qService(object):
             with open(self.__get_todo_file_path(), "rb") as fd:
                 todo = pickle.load(fd)
         except Exception as e:
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/core.py
             self.logger.debug("Load todo file error: %s", e)
+=======
+            self.logger.debug('Load todo file error: %s', e)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/multi_t_q_service.py
         return todo
 
     def __get_todo_file_path(self):

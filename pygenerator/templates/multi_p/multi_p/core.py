@@ -1,3 +1,9 @@
+<<<<<<< HEAD:pygenerator/templates/multi_p/multi_p/core.py
+=======
+#!/usr/bin/env python
+
+import logging
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_p/lib/multi_p_service.py
 import os
 import signal
 import sys
@@ -13,9 +19,14 @@ class Multi_pService():
     def __init__(self, cfg, execute_dir):
         self.execute_dir = execute_dir
         # worker
+<<<<<<< HEAD:pygenerator/templates/multi_p/multi_p/core.py
         self.worker_mum = cfg.service.workers
         # self.workers = []
         self.is_running = Value("b", False)
+=======
+        self.worker_mum = self.cfg.getint('default', 'service.workers')
+        self.is_running = Value('b', False)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_p/lib/multi_p_service.py
         self.stop_condition = Condition()
         # 初始化多进程间共享的容器
         manager = Manager()
@@ -26,7 +37,12 @@ class Multi_pService():
 
     @property
     def workers(self):
+<<<<<<< HEAD:pygenerator/templates/multi_p/multi_p/core.py
         return []
+=======
+        workers = []
+        return workers
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_p/lib/multi_p_service.py
 
     def init_signal_handler(self):
         """删除不需要处理的信号，以及增加需要处理的信号,并且设置不同的处理方法
@@ -70,7 +86,11 @@ class Multi_pService():
                 w.start()
                 self.workers.append(w)
             except Exception as x:
+<<<<<<< HEAD:pygenerator/templates/multi_p/multi_p/core.py
                 logger.critical(x)
+=======
+                logging.exception(x)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_p/lib/multi_p_service.py
 
         for w in self.workers:
             w.join()
@@ -84,7 +104,11 @@ class Multi_pService():
             except (SystemExit, KeyboardInterrupt):
                 break
             except Exception as x:
+<<<<<<< HEAD:pygenerator/templates/multi_p/multi_p/core.py
                 logger.critical(x)
+=======
+                logging.exception(x)
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_p/lib/multi_p_service.py
 
         self.is_running.value = False
 

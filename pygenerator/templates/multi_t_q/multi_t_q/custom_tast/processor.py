@@ -1,3 +1,8 @@
+<<<<<<< HEAD:pygenerator/templates/multi_t_q/multi_t_q/custom_tast/processor.py
+=======
+#!/usr/bin/env python
+
+>>>>>>> 391530e3db66419902736c14babb0a6bcf179a51:pygenerator/templates/multi_t_q/lib/custom_tast/processor.py
 import logging
 
 
