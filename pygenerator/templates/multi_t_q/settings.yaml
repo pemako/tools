@@ -27,14 +27,18 @@ logs:
       filename: logs/multi_t_q.log
       maxBytes: 10485760
       backupCount: 3
+    timefile: # 按小时进行切分日志
+      class: logging.handlers.TimedRotatingFileHandler
+      level: DEBUG
+      formatter: base
+      filename: logs/multi_t_q.log
+      when: D
+      interval: 1
+      backupCount: 168
   loggers:
-    logger:
-      level: INFO
-      handlers: [logfile]
-      propagate: yes
     multi_t_q:
       level: INFO
-      handlers: [logfile]
+      handlers: [timefile]
       propagate: yes
   root:
     level: DEBUG

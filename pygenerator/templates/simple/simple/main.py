@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import argparse
 import logging
 import logging.config
@@ -7,7 +5,6 @@ import os
 
 from config import settings
 from core import SimpleService
-
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="simple service")

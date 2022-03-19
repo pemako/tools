@@ -20,14 +20,18 @@ logs:
       filename: logs/simple.log
       maxBytes: 10485760
       backupCount: 3
+    timefile: # 按小时进行切分日志
+      class: logging.handlers.TimedRotatingFileHandler
+      level: DEBUG
+      formatter: base
+      filename: logs/simple.log
+      when: D 
+      interval: 1
+      backupCount: 168
   loggers:
-    logger:
-      level: INFO
-      handlers: [logfile]
-      propagate: yes
     simple:
       level: INFO
-      handlers: [logfile]
+      handlers: [timefile]
       propagate: yes
   root:
     level: DEBUG

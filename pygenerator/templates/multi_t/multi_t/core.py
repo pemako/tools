@@ -57,7 +57,7 @@ class Multi_tService(object):
         while True:
             alive = False
             for t in self.worker_threads:
-                alive = alive or t.isAlive()
+                alive = alive or t.is_alive()
             if not alive:
                 break
 

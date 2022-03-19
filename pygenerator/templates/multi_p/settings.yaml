@@ -1,0 +1,72 @@
+---
+service:
+  port: 24680
+  workers: 20
+  logging:
+    port: 24681
+
+log:
+  path: logs/multi_p.{}.log
+  level: DEBUG
+  format: "%(asctime)s %(levelname)s %(name)s %(thread)d - %(message)s"
+  serialize: false
+  backtrace: true # 格式化的异常跟踪是否应该向上扩展，超出捕获点，以显示生成错误的完整堆栈跟踪
+  diagnose: true  # 异常跟踪是否应显示变量值以简化调试。建议在生产环境中设置 False，避免泄露敏感数据
+  enqueue: true # 要记录的消息是否应在到达 sink 之前首先通过多进程安全队列，这在通过多个进程记录到文件时很有用，这样做的好处还在于使日志记录调用是非阻塞的
+  catch: true # 是否应自动捕获 sink 处理日志消息时发生的错误，如果为 True，则会在 sys.stderr 上显示异常消息，但该异常不会传播到 sink，从而防止应用程序崩溃
+  rotation: 00:00 # 一种条件，指示何时应关闭当前记录的文件并开始新的文件
+  retention: '7 days' # 可以设置日志的最长保留时间，比如设置日志文件最长保留 15 天
+  compression: zip #  可以配置日志文件的压缩格式 gz、bz2、xz、lzma、tar、tar.gz、tar.bz2、tar.xz
+
+logs:
+  version: 1
+  formatters:
+    base:
+      format: "%(asctime)s %(levelname)s %(name)s %(thread)d - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: WARNING
+      formatter: base
+      stream: ext://sys.stdout
+    logfile:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      formatter: base
+      filename: logs/multi_p.log
+      maxBytes: 10485760
+      backupCount: 3
+  loggers:
+    logger:
+      level: INFO
+      handlers: [logfile]
+      propagate: yes
+    multi_p:
+      level: INFO
+      handlers: [logfile]
+      propagate: yes
+  root:
+    level: DEBUG
+    handlers: [console]
+
+worklogs:
+  version: 1
+  formatters:
+    base:
+      format: "%(asctime)s %(levelname)s %(name)s %(thread)d - %(message)s"
+  handlers:
+    socketHandler:
+      class: logging.handlers.SocketHandler
+      level: DEBUG
+      formatter: base
+      host: 127.0.0.1
+      port: 24681
+  loggers:
+    worker:
+      level: DEBUG
+      handlers: [socketHandler]
+      qualname: worker
+      propagate: 0
+  root:
+    level: DEBUG
+    handlers: [socketHandler]
